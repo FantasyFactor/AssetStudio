@@ -1,8 +1,10 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using static AssetStudio.ImportHelper;
 
@@ -163,6 +165,11 @@ namespace AssetStudio
                     CheckStrippedVersion(assetsFile);
                     assetsFileList.Add(assetsFile);
                     assetsFileListHash.Add(assetsFile.fileName);
+
+                    /*string message = JsonConvert.SerializeObject(assetsFile);
+
+                    Logger.Info("Print assetsFile");
+                    Logger.Info(message);*/
                 }
                 catch (Exception e)
                 {
@@ -385,6 +392,8 @@ namespace AssetStudio
             Progress.Reset();
             foreach (var assetsFile in assetsFileList)
             {
+                Logger.Info(string.Format("Read assets:{0}", assetsFile.fileName));
+
                 foreach (var objectInfo in assetsFile.m_Objects)
                 {
                     var objectReader = new ObjectReader(assetsFile.reader, assetsFile, objectInfo);
@@ -482,6 +491,8 @@ namespace AssetStudio
                                 break;
                         }
                         assetsFile.AddObject(obj);
+
+                        Logger.Info(string.Format("pathID:{0} type:{1} md5:{2}", objectInfo.m_PathID, objectReader.type, MD5Helper.ComputeMD5Hash(obj.GetRawData())));
                     }
                     catch (Exception e)
                     {

@@ -1,9 +1,12 @@
-﻿using System.Collections.Specialized;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Specialized;
 
 namespace AssetStudio
 {
     public class Object
     {
+        [NonSerialized]
         public SerializedFile assetsFile;
         public ObjectReader reader;
         public long m_PathID;

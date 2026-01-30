@@ -13,6 +13,7 @@ namespace AssetStudio
             var buff = BigArrayPool<byte>.Shared.Rent(m_Texture2D.m_Width * m_Texture2D.m_Height * 4);
             try
             {
+                Logger.Info(string.Format("Texture:{0} md5:{1}", m_Texture2D.m_Name, MD5Helper.ComputeMD5Hash(buff)));
                 if (converter.DecodeTexture2D(buff))
                 {
                     var image = Image.LoadPixelData<Bgra32>(buff, m_Texture2D.m_Width, m_Texture2D.m_Height);

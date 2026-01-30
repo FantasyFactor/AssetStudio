@@ -88,7 +88,7 @@ namespace AssetStudioGUI
         private string openDirectoryBackup = string.Empty;
         private string saveDirectoryBackup = string.Empty;
 
-        private GUILogger logger;
+        private ILogger logger;
 
         [DllImport("gdi32.dll")]
         private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
@@ -105,7 +105,9 @@ namespace AssetStudioGUI
             enablePreview.Checked = Properties.Settings.Default.enablePreview;
             FMODinit();
 
-            logger = new GUILogger(StatusStripUpdate);
+            //logger = new GUILogger(StatusStripUpdate);
+            logger = new FileLogger(StatusStripUpdate);
+            logger.ShowErrorMessage = true;
             Logger.Default = logger;
             Progress.Default = new Progress<int>(SetProgressBarValue);
             Studio.StatusStripUpdate = StatusStripUpdate;

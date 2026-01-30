@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace AssetStudio
 {
     public class SerializedFile
     {
+        [NonSerialized]
         public AssetsManager assetsManager;
         public FileReader reader;
         public string fullName;
@@ -37,6 +39,8 @@ namespace AssetStudio
             this.reader = reader;
             fullName = reader.FullPath;
             fileName = reader.FileName;
+
+            Logger.Info(string.Format("read objectInfos:{0}", fileName));
 
             // ReadHeader
             header = new SerializedFileHeader();
@@ -156,6 +160,11 @@ namespace AssetStudio
                 {
                     objectInfo.stripped = reader.ReadByte();
                 }
+                
+                var message = JsonConvert.SerializeObject(objectInfo);
+
+                Logger.Info(string.Format("objectInfo:{0}", message));
+
                 m_Objects.Add(objectInfo);
             }
 

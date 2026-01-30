@@ -6,7 +6,7 @@ namespace AssetStudioGUI
 {
     class GUILogger : ILogger
     {
-        public bool ShowErrorMessage = true;
+        public bool ShowErrorMessage { get; set; }
         private Action<string> action;
 
         public GUILogger(Action<string> action)
@@ -18,6 +18,12 @@ namespace AssetStudioGUI
         {
             switch (loggerEvent)
             {
+                case LoggerEvent.Info:
+                    Console.WriteLine(message);
+                    break;
+                case LoggerEvent.Debug:
+                    Console.WriteLine(message);
+                    break;
                 case LoggerEvent.Error:
                     if (ShowErrorMessage)
                     {

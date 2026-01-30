@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AssetStudio
 {
@@ -212,6 +214,8 @@ namespace AssetStudio
                 blocksStream.Position = node.offset;
                 blocksStream.CopyTo(file.stream, node.size);
                 file.stream.Position = 0;
+
+                Logger.Info(string.Format("filename:{0}  md5:{1}", file.fileName, MD5Helper.ComputeMD5Hash(file.stream)));
             }
         }
 
@@ -225,6 +229,11 @@ namespace AssetStudio
             {
                 reader.ReadByte();
             }
+
+            Logger.Debug($"bundleFile Header size:{m_Header.size}");
+            Logger.Debug($"bundleFile Header compressedBlocksInfoSize:{m_Header.compressedBlocksInfoSize}");
+            Logger.Debug($"bundleFile Header uncompressedBlocksInfoSize:{m_Header.uncompressedBlocksInfoSize}");
+            Logger.Debug($"bundleFile Header flags:{m_Header.flags}");
         }
 
         private void ReadBlocksInfoAndDirectory(EndianBinaryReader reader)
@@ -284,6 +293,16 @@ namespace AssetStudio
             {
                 var uncompressedDataHash = blocksInfoReader.ReadBytes(16);
                 var blocksInfoCount = blocksInfoReader.ReadInt32();
+
+                StringBuilder hex = new StringBuilder();
+
+                foreach (byte value in uncompressedDataHash)
+                {
+                    hex.AppendFormat("{0:x2}", value);
+                }
+
+                Logger.Debug($"bundleFile uncompressedDataHash:{hex}");
+                Logger.Debug($"bundleFile blocksInfoCount:{blocksInfoCount}");
                 m_BlocksInfo = new StorageBlock[blocksInfoCount];
                 for (int i = 0; i < blocksInfoCount; i++)
                 {
@@ -293,9 +312,12 @@ namespace AssetStudio
                         compressedSize = blocksInfoReader.ReadUInt32(),
                         flags = (StorageBlockFlags)blocksInfoReader.ReadUInt16()
                     };
+
+                    Logger.Debug($"bundleFile blockInfo_{i}, uncompressedSize:{m_BlocksInfo[i].uncompressedSize} compressedSize:{m_BlocksInfo[i].compressedSize} flags:{m_BlocksInfo[i].flags}");
                 }
 
                 var nodesCount = blocksInfoReader.ReadInt32();
+                Logger.Debug($"bundleFile nodesCount:{nodesCount}");
                 m_DirectoryInfo = new Node[nodesCount];
                 for (int i = 0; i < nodesCount; i++)
                 {
@@ -306,6 +328,8 @@ namespace AssetStudio
                         flags = blocksInfoReader.ReadUInt32(),
                         path = blocksInfoReader.ReadStringToNull(),
                     };
+
+                    Logger.Debug($"bundleFile nodeInfo_{i}, offset:{m_DirectoryInfo[i].offset} size:{m_DirectoryInfo[i].size} flags:{m_DirectoryInfo[i].flags} path:{m_DirectoryInfo[i].path}");
                 }
             }
             if ((m_Header.flags & ArchiveFlags.BlockInfoNeedPaddingAtStart) != 0)
